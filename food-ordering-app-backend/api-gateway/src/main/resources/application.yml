@@ -1,0 +1,147 @@
+eureka:
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      default-zone: http://localhost:8761/eureka
+server:
+  port: 8080
+  
+  
+management:
+ health:
+  circuitbreakers:
+   enabled: true
+ endpoints:
+  web:
+   exposure:
+    include: health
+ endpoint:
+  health:
+   show-details: always
+  
+  
+#resilience4j:
+# circuitbreaker:
+#  instances:
+#   user-service:
+#    registerHealthIndicator: true
+#    eventConsumerBufferSize: 10
+#    failureRateThreshold: 50
+#    minimumNumberOfCalls: 5
+#    automaticTransitionFromOpenToHalfOpenEnabled: true
+#    waitDurationInOpenState: 35s
+#    permittedNumberOfCallsInHalfOpenState: 3
+#    slidingWindowSize: 10
+#   restaurant-service:
+#    registerHealthIndicator: true
+#    eventConsumerBufferSize: 10
+#    failureRateThreshold: 50
+#    minimumNumberOfCalls: 5
+#    automaticTransitionFromOpenToHalfOpenEnabled: true
+#    waitDurationInOpenState: 35s
+#    permittedNumberOfCallsInHalfOpenState: 3
+#    slidingWindowSize: 10
+#   order-service:
+#    registerHealthIndicator: true
+#    eventConsumerBufferSize: 10
+#    failureRateThreshold: 50
+#    minimumNumberOfCalls: 5
+#    automaticTransitionFromOpenToHalfOpenEnabled: true
+#    waitDurationInOpenState: 35s
+#    permittedNumberOfCallsInHalfOpenState: 3
+#    slidingWindowSize: 10
+#   cart-service:
+#    registerHealthIndicator: true
+#    eventConsumerBufferSize: 10
+#    failureRateThreshold: 50
+#    minimumNumberOfCalls: 5
+#    automaticTransitionFromOpenToHalfOpenEnabled: true
+#    waitDurationInOpenState: 35s
+#    permittedNumberOfCallsInHalfOpenState: 3
+#    slidingWindowSize: 10
+#   food-item-service:
+#    registerHealthIndicator: true
+#    eventConsumerBufferSize: 10
+#    failureRateThreshold: 50
+#    minimumNumberOfCalls: 5
+#    automaticTransitionFromOpenToHalfOpenEnabled: true
+#    waitDurationInOpenState: 35s
+#    permittedNumberOfCallsInHalfOpenState: 3
+#    slidingWindowSize: 10 
+  
+spring:
+  application:
+    name: api-gateway
+  cloud:
+    gateway:
+      default-filters:
+      - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        add-to-simple-url-handler-mapping: true
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
+            
+      routes:
+      - id: user-service
+        uri: lb://user-service
+        predicates:
+        - Path=/api/v1/user/**
+#        filters:
+#          - name: CircuitBreaker
+#            args:
+#              name: user-service
+#              fallbackUri: forward:/fallback
+        
+      - id: restaurant-service
+        uri: lb://restaurant-service
+        predicates:
+        - Path=/api/v1/restaurant/**
+#        filters:
+#          - name: CircuitBreaker
+#            args:
+#              name: user-service
+#              fallbackUri: forward:/fallback
+        
+      - id: order-service
+        predicates:
+        - Path=/api/v1/order/**
+        uri: lb://order-service
+#        filters:
+#          - name: CircuitBreaker
+#            args:
+#              name: user-service
+#              fallbackUri: forward:/fallback
+        
+      - id: food-item-service
+        uri: lb://food-item-service
+        predicates:
+        - Path=/api/v1/foodItem/**
+#        filters:
+#          - name: CircuitBreaker
+#            args:
+#              name: user-service
+#              fallbackUri: forward:/fallback
+        
+      - id: cart-service
+        uri: lb://cart-service
+        predicates:
+        - Path=/api/v1/cart/**
+#        filters:
+#          - name: CircuitBreaker
+#            args:
+#              name: user-service
+#              fallbackUri: forward:/fallback
+        
+      - id: admin-service
+        uri: lb://admin-service
+        predicates:
+        - Path=/api/v1/admin/**
+#        filters:
+#          - name: CircuitBreaker
+#            args:
+#              name: user-service
+#              fallbackUri: forward:/fallback
